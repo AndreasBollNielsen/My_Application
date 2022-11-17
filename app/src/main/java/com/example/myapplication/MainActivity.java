@@ -15,6 +15,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -25,6 +26,8 @@ import android.graphics.BitmapFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -78,19 +81,37 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
         new GetAsyncTask().setInstance(MainActivity.this).execute();
     }
 
+    void PostImages(String photo)
+    {
+        new PostasyncTask().setInstance(MainActivity.this).execute(photo);
+    }
+
+    //take picture
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 100) {
             Bitmap photo = (Bitmap) data.getExtras().get("data");
+           String base64 = ConvertBitmap(photo);
             ImageView view = findViewById(R.id.imagecontainer);
             view.setImageBitmap(photo);
+            PostImages(base64);
         }
     }
 
     @Override
     public void setResult(String result) {
         Log.d("TAG", result);
+    }
+
+    //convert image to base64
+    private String ConvertBitmap(Bitmap photo)
+    {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        photo.compress(Bitmap.CompressFormat.JPEG,100,stream);
+        byte[] bytes = stream.toByteArray();
+        String base64 = Base64.encodeToString(bytes,Base64.DEFAULT);
+        return base64;
     }
 }
