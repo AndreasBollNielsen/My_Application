@@ -4,11 +4,15 @@ import static androidx.fragment.app.FragmentManager.TAG;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.provider.MediaStore;
 import android.util.Log;
@@ -18,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,7 +46,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         //request camera permission
-        //  requestPermissions(new String[]{Manifest.permission.CAMERA},MY_CAMERA_PERMISSION_CODE);
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, 100);
+
+        }
 
 
         ImageButton openCamera = (ImageButton) findViewById(R.id.imageButton);
@@ -49,7 +57,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                onActivityResult(CAMERA_REQUEST, 200, cameraIntent);
+               /* onActivityResult(CAMERA_REQUEST, 200, cameraIntent);*/
+                startActivityForResult(cameraIntent,100);
             }
         });
         //get images from API
@@ -69,27 +78,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.i("TAG", "request code: " + requestCode + " picId: " + picId);
 
 
-        Bitmap photo = (Bitmap) data.getExtras().get("data");
-        ImageView img = (ImageView) findViewById(R.id.imagecontainer);
-        img.setImageBitmap(photo);
 
-    }
 
     void GetImages() throws MalformedURLException {
 
         URL url = new URL("http://www.android.com/");
         HttpURLConnection urlConnection = null;
         try {
-            urlConnection  = (HttpURLConnection) url.openConnection();
+            urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
 
             int code = urlConnection.getResponseCode();
-            Log.i("Response", "status code: " +code);
+            Log.i("Response", "status code: " + code);
            /* InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             Bitmap map = BitmapFactory.decodeStream(in);
             Log.i("Response", map.toString());*/
@@ -100,5 +102,17 @@ public class MainActivity extends AppCompatActivity {
             urlConnection.disconnect();
         }
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 100)
+        {
+            Bitmap photo = (Bitmap) data.getExtras().get("data");
+            ImageView view = findViewById(R.id.imagecontainer);
+            view.setImageBitmap(photo);
+        }
     }
 }
