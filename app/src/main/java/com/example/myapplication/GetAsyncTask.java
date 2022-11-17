@@ -60,5 +60,6 @@ public class GetAsyncTask extends AsyncTask<Void,Void,String> {
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
         callback.setResult(result);
+        callback.GetImages(result);
     }
 }

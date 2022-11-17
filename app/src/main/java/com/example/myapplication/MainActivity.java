@@ -105,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
         Log.d("TAG", result);
     }
 
+
+
     //convert image to base64
     private String ConvertBitmap(Bitmap photo)
     {
@@ -113,5 +115,12 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
         byte[] bytes = stream.toByteArray();
         String base64 = Base64.encodeToString(bytes,Base64.DEFAULT);
         return base64;
+    }
+//convert base64 to bitmap
+   private Bitmap ConvertToBitmap (String base64)
+    {
+        byte[] bytes = Base64.decode(base64,0);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0, bytes.length);
+        return bitmap;
     }
 }
