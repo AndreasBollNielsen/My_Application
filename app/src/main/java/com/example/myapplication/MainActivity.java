@@ -32,7 +32,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AsyncCallBack {
 
 
     private static final int CAMERA_REQUEST = 1888;
@@ -57,20 +57,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-               /* onActivityResult(CAMERA_REQUEST, 200, cameraIntent);*/
-                startActivityForResult(cameraIntent,100);
+                /* onActivityResult(CAMERA_REQUEST, 200, cameraIntent);*/
+                startActivityForResult(cameraIntent, 100);
             }
         });
         //get images from API
         Button GetImageBtn = (Button) findViewById(R.id.Button);
         GetImageBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
-                try {
-                    GetImages();
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
+                GetImages();
             }
         });
 
@@ -78,41 +73,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    void GetImages() {
 
-
-
-
-    void GetImages() throws MalformedURLException {
-
-        URL url = new URL("http://www.android.com/");
-        HttpURLConnection urlConnection = null;
-        try {
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-
-            int code = urlConnection.getResponseCode();
-            Log.i("Response", "status code: " + code);
-           /* InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-            Bitmap map = BitmapFactory.decodeStream(in);
-            Log.i("Response", map.toString());*/
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            urlConnection.disconnect();
-        }
-
+        new GetAsyncTask().setInstance(MainActivity.this).execute();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == 100)
-        {
+        if (requestCode == 100) {
             Bitmap photo = (Bitmap) data.getExtras().get("data");
             ImageView view = findViewById(R.id.imagecontainer);
             view.setImageBitmap(photo);
         }
+    }
+
+    @Override
+    public void setResult(String result) {
+        Log.d("TAG", result);
     }
 }
