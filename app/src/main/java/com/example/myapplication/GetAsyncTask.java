@@ -27,14 +27,14 @@ public class GetAsyncTask extends AsyncTask<Void,Void,String> {
     @Override
     protected String doInBackground(Void... voids) {
 
-        HttpGet httpGet = new HttpGet("http://0.0.0.0:3600/api/login");
+        HttpGet httpGet = new HttpGet("http://10.108.169.27:3600/api/getImages");
         HttpClient client = new DecompressingHttpClient();
         String result = "";
 
         try {
             HttpResponse response = client.execute(httpGet);
             int statuscode = response.getStatusLine().getStatusCode();
-            Log.d("TAG", toString().valueOf(statuscode));
+            Log.d("Status code", toString().valueOf(statuscode));
             if(statuscode == 200)
             {
                 InputStream stream = response.getEntity().getContent();
@@ -45,7 +45,7 @@ public class GetAsyncTask extends AsyncTask<Void,Void,String> {
                     result += line;
                 }
 
-                Log.d("TAG", String.valueOf(result));
+              //  Log.d("input stream", String.valueOf(result));
             }
         } catch (ClientProtocolException e) {
             e.printStackTrace();
@@ -59,6 +59,7 @@ public class GetAsyncTask extends AsyncTask<Void,Void,String> {
     @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
-        callback.setResult(result);
+        //callback.setResult(result);
+        callback.GetData(result);
     }
 }
