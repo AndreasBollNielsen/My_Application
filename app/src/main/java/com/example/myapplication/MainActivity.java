@@ -17,12 +17,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.graphics.BitmapFactory;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
-
-
+import java.nio.charset.StandardCharsets;
 
 
 public class MainActivity extends AppCompatActivity implements AsyncCallBack {
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
     private static final int CAMERA_REQUEST = 1888;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
     private static final int picId = 123;
-    LinearLayout layout;
+    RelativeLayout layout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,15 +84,16 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
 
         if (requestCode == 100) {
             Bitmap photo = (Bitmap) data.getExtras().get("data");
+
             String base64 = ConvertBitmap(photo);
-            ImageView view = findViewById(R.id.imagecontainer);
-            view.setImageBitmap(photo);
+           // ImageView view = findViewById(R.id.imagecontainer);
+          //  view.setImageBitmap(photo);
             PostImages(base64);
 
             //test encoding and decoding of images
           // Bitmap img = ConvertToBitmap(base64);
             //view.setImageBitmap(img);
-         //  GenerateNewImage(img);
+           GenerateNewImage(photo);
         }
     }
 
@@ -124,7 +126,8 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] bytes = stream.toByteArray();
-        String base64 = Base64.encodeToString(bytes, Base64.DEFAULT);
+        String base64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
+
       //  Log.d("convert to base64", "ConvertBitmap: " + base64);
         return base64;
     }
@@ -134,7 +137,8 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
 
         try {
 
-            byte[] bytes = Base64.decode(base64, 0);
+            byte[] bytes = Base64.decode(base64.getBytes(StandardCharsets.UTF_8), Base64.DEFAULT);
+
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
             return bitmap;
 
@@ -146,14 +150,15 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
 
     private void GenerateNewImage(Bitmap photo) {
 
+        RelativeLayout layout = findViewById(R.id.pictures);
         try {
 
-            layout.findViewById(R.id.background);
+
             ImageView img = new ImageView(MainActivity.this);
             img.setImageBitmap(photo);
 
 
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(128, 128);
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(128, 128);
             params.setMargins(10, 10, 10, 10);
             img.setLayoutParams(params);
             layout.addView(img);

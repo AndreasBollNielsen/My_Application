@@ -4,6 +4,14 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpResponse;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.NameValuePair;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.HttpClient;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.entity.UrlEncodedFormEntity;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.methods.HttpPost;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.impl.client.DefaultHttpClient;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.message.BasicNameValuePair;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,10 +22,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PostasyncTask extends AsyncTask<String, Void, String> {
 
@@ -33,30 +44,42 @@ public class PostasyncTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... strings) {
-        String response = "";
+        String outputResponse = "";
         BufferedReader reader = null;
 
+        HttpClient client = new DefaultHttpClient();
+        HttpPost post = new HttpPost("http://192.168.0.24:3600/api/addImage");
+
         try {
-            URL url = new URL("http://192.168.0.24:3600/api/addImage");
+          //  URL url = new URL("http://192.168.0.24:3600/api/addImage");
             String data = strings[0];
-            Log.d("data", "doInBackground: " + data);
-            URLConnection con = url.openConnection();
-            con.setDoOutput(true);
+           // Log.d("data", "doInBackground: " + data);
+          //  URLConnection con = url.openConnection();
+          // con.setDoOutput(true);
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+            nameValuePairs.add(new BasicNameValuePair("path", data));
+            post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            post.setHeader("content.type","application/json");
 
-            // con.setRequestProperty("Content-Type", "application/json");
-            //  con.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+            //http response
+            HttpResponse response = client.execute(post);
+            reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+            String line = "";
+            while ((line = reader.readLine()) != null)
+            {
+                outputResponse = line;
+            }
 
 
 
 
-
-            //write to api
+           /* //write to api
             OutputStreamWriter writer = new OutputStreamWriter(con.getOutputStream());
-            writer.write(data);
-            writer.flush();
+            writer.write(json.toString());
+            writer.flush();*/
 
             //receive post response
-            reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            /*reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
             StringBuilder sb = new StringBuilder();
             String line = null;
 
@@ -65,7 +88,7 @@ public class PostasyncTask extends AsyncTask<String, Void, String> {
                 sb.append(line + "\n");
             }
 
-            response = sb.toString();
+            response = sb.toString();*/
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -77,7 +100,7 @@ public class PostasyncTask extends AsyncTask<String, Void, String> {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return response;
+            return outputResponse;
         }
     }
 
