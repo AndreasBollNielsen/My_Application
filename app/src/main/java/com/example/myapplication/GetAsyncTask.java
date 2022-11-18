@@ -27,7 +27,7 @@ public class GetAsyncTask extends AsyncTask<Void,Void,String> {
     @Override
     protected String doInBackground(Void... voids) {
 
-        HttpGet httpGet = new HttpGet("http://10.108.169.27:3600/api/getImages");
+        HttpGet httpGet = new HttpGet("http://192.168.0.24:3600/api/getImages");
         HttpClient client = new DecompressingHttpClient();
         String result = "";
 
