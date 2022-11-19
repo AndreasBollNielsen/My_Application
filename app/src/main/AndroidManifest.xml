@@ -17,6 +17,8 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+
+
             android:theme="@style/Theme.MyApplication.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,10 +30,13 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
+
     </application>
 
 
-
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
 
