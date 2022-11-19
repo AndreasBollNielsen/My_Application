@@ -119,11 +119,10 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
             GenerateNewImage(photo);
 
             //save image in local storage
-          boolean success =  SaveImageToStorage(UUID.randomUUID().toString(),photo);
-          if(success)
-          {
-              Log.d("save image", "onActivityResult: image save successfully");
-          }
+            boolean success = SaveImageToStorage(UUID.randomUUID().toString(), photo);
+            if (success) {
+                Log.d("save image", "onActivityResult: image save successfully");
+            }
         }
     }
 
@@ -134,6 +133,14 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
      */
     @Override
     public void GetData(String result) {
+
+        //clear screen of old images
+        if (layout.getChildCount() > 0) {
+
+            layout.removeAllViews();
+            numImageX = 0;
+            numImageY = 0;
+        }
 
         try {
             JSONArray json = new JSONArray(result);
@@ -213,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
 
             //create image view
             ImageView img = new ImageView(MainActivity.this);
-            img.setImageBitmap(Bitmap.createScaledBitmap(photo,size,size,false));
+            img.setImageBitmap(Bitmap.createScaledBitmap(photo, size, size, false));
             img.setBackground(getResources().getDrawable(R.drawable.boxshadow));
 
             //set on touch listener
@@ -229,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
             //position images in rows & columns
             layout.getChildAt(numImageX).setX(x);
             layout.getChildAt(numImageX).setY(y);
-           // layout.getChildAt(numImageX).setElevation(10);
+            // layout.getChildAt(numImageX).setElevation(10);
 
             Log.d("childCount", "GenerateNewImage: " + layout.getChildCount());
 
@@ -248,6 +255,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
 
     /**
      * on touch event for moving image around on screen
+     *
      * @return
      */
     private OnTouchListener onTouchListener() {
@@ -258,12 +266,14 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
                 final int x = (int) motionEvent.getRawX();
                 final int y = (int) motionEvent.getRawY();
 
+                // calculate delta variables
                 switch (motionEvent.getAction() & motionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
                         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) view.getLayoutParams();
                         xDelta = x - params.leftMargin;
                         yDelta = y - params.topMargin;
                         break;
+                    //move image based on motion event
                     case MotionEvent.ACTION_MOVE:
                         RelativeLayout.LayoutParams newParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
                         newParams.leftMargin = x - xDelta;
@@ -280,21 +290,28 @@ public class MainActivity extends AppCompatActivity implements AsyncCallBack {
         };
     }
 
-
-    private boolean SaveImageToStorage(String name,Bitmap photo)
-    {
+    /**
+     * Saving image to internal storage
+     *
+     * @param name
+     * @param photo
+     * @return
+     */
+    private boolean SaveImageToStorage(String name, Bitmap photo) {
         Uri ImageCollection;
         ContentResolver resolver = getContentResolver();
 
+        //set save path
         ImageCollection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
         ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DISPLAY_NAME,name + "jpg");
-        values.put(MediaStore.Images.Media.MIME_TYPE,"image/jpg");
-        Uri imageUri = resolver.insert(ImageCollection,values);
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, name + "jpg");
+        values.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+        Uri imageUri = resolver.insert(ImageCollection, values);
 
+        //compress & save image to storage
         try {
             OutputStream stream = resolver.openOutputStream(Objects.requireNonNull(imageUri));
-            photo.compress(Bitmap.CompressFormat.JPEG,100,stream);
+            photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             Objects.requireNonNull(stream);
             return true;
         } catch (Exception e) {
